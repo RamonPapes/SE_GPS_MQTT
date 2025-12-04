@@ -1,8 +1,8 @@
 #include "drivers.hpp"
 #include "devices.hpp"
 
-#define WIFI_NAME "RP"
-#define WIFI_SSID "1234567890"
+#define WIFI_SSID "RP"
+#define WIFI_PASS "1234567890"
 
 uart gps_uart;
 Pit timer;
@@ -41,6 +41,11 @@ void messageHandler(const char *topic, const char *data)
     }
 }
 
+void mqttConnectedHandler(){
+    printf("Me insrevendo no topico esp32/gps-servo");
+    mqtt.read("esp32/gps-servo");
+}
+
 const int dias_mes[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 void adjust_timezone(int &year, uint8_t &month, uint8_t &day, uint8_t &hour, int fuso);
@@ -59,7 +64,7 @@ extern "C" void app_main()
     // wifi_start("CIMATEC-VISITANTE", "");
 
 
-    wifi_start(WIFI_NAME, WIFI_SSID);
+    wifi_start(WIFI_SSID, WIFI_PASS);
 
     while (!wifi_connected())
     {
@@ -71,10 +76,11 @@ extern "C" void app_main()
             printf("Connecting to WiFi...\n");
         }
     }
-
-    mqtt.init(1883, "mqtt://test.mosquitto.org");
+    
     mqtt.onMessage(messageHandler);
-    mqtt.read("esp32/gps-servo");
+    mqtt.onConnected(mqttConnectedHandler);
+    mqtt.init(1883, "mqtt://test.mosquitto.org");
+
 
     gps.init();
 

@@ -19,6 +19,7 @@
 #define MQTT_MAX_TOPICS 16
 
 typedef void (*mqtt_callback_t)(const char *topic, const char *data);
+typedef void (*mqtt_connected_callback_t)();
 
 class MQTT
 
@@ -29,7 +30,10 @@ public:
     void write(char * topic, char * data);
     void read(const char *topic);
     void onMessage(mqtt_callback_t cb);
+    void onConnected(mqtt_connected_callback_t cb);
     mqtt_callback_t message_callback = nullptr;
+    mqtt_connected_callback_t connected_callback = nullptr;
+
 
 private:
     char * m_topic;

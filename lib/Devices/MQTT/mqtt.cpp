@@ -44,6 +44,11 @@ void MQTT::onMessage(mqtt_callback_t cb)
     this->message_callback = cb;
 }
 
+void MQTT::onConnected(mqtt_connected_callback_t cb)
+{
+    this->connected_callback = cb;
+}
+
 static void log_error_if_nonzero(const char *message, int error_code)
 {
     if (error_code != 0)
@@ -59,6 +64,10 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     {
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(MQTT_TAG, "MQTT_EVENT_CONNECTED");
+        if (global_mqtt_instance && global_mqtt_instance->connected_callback)
+        {
+            global_mqtt_instance->connected_callback();
+        }
         break;
     case MQTT_EVENT_DISCONNECTED:
         ESP_LOGI(MQTT_TAG, "MQTT_EVENT_DISCONNECTED");
